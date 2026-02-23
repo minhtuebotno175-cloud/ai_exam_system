@@ -1,0 +1,133 @@
+ai_exam_system/
+│
+├── manage.py
+├── requirements.txt
+├── .env.example
+├── .gitignore
+├── README.md
+├── pytest.ini
+│
+├── config/                          # Django Project Settings
+│   ├── __init__.py
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py                 # Cấu hình chung
+│   │   ├── development.py          # Dev environment
+│   │   ├── production.py           # Production environment
+│   │   └── testing.py              # Test environment
+│   ├── urls.py                     # Root URL configuration
+│   ├── wsgi.py
+│   └── asgi.py                     # Async support (cho Celery/WebSocket)
+│
+├── apps/                            # Django Applications
+│   │
+│   ├── users/                      # 👤 User Management App
+│   │   ├── __init__.py
+│   │   ├── models.py              # CustomUser, UserProfile
+│   │   ├── views.py               # Login, Register, Profile views
+│   │   ├── urls.py
+│   │   ├── forms.py               # UserCreationForm, ProfileForm
+│   │   ├── serializers.py         # DRF serializers (nếu dùng API)
+│   │   ├── admin.py
+│   │   ├── tests.py
+│   │   └── migrations/
+│   │
+│   ├── documents/                  # 📄 Document Management App
+│   │   ├── __init__.py
+│   │   ├── models.py              # Document, DocumentVersion
+│   │   ├── views.py               # Upload, List, Search, Delete views
+│   │   ├── urls.py
+│   │   ├── forms.py               # DocumentUploadForm
+│   │   ├── admin.py
+│   │   ├── serializers.py
+│   │   ├── services/              # 🔥 SERVICE LAYER
+│   │   │   ├── __init__.py
+│   │   │   ├── document_processor.py    # Xử lý upload & lưu file
+│   │   │   ├── text_extractor.py        # Extract text từ PDF/Word
+│   │   │   └── document_service.py      # Business logic chính
+│   │   ├── tasks.py               # Celery background tasks
+│   │   ├── utils.py               # Helper functions (file validation, etc.)
+│   │   ├── tests/
+│   │   │   ├── test_models.py
+│   │   │   ├── test_services.py
+│   │   │   └── test_views.py
+│   │   └── migrations/
+│   │
+│   ├── quizzes/                    # ❓ Quiz & Exam Management App
+│   │   ├── __init__.py
+│   │   ├── models.py              # Quiz, Question, Answer, UserQuizAttempt
+│   │   ├── views.py               # Generate, Take, Review quiz views
+│   │   ├── urls.py
+│   │   ├── forms.py               # QuizGenerationForm, QuizSubmissionForm
+│   │   ├── admin.py
+│   │   ├── serializers.py
+│   │   ├── services/              # 🔥 SERVICE LAYER
+│   │   │   ├── __init__.py
+│   │   │   ├── ai_generator.py          # Gọi AI API tạo câu hỏi
+│   │   │   ├── quiz_service.py          # Business logic quiz
+│   │   │   ├── shuffler.py              # Thuật toán random câu hỏi
+│   │   │   └── grading_service.py       # Chấm điểm
+│   │   ├── tasks.py               # Background AI generation
+│   │   ├── utils.py               # Helper functions
+│   │   ├── tests/
+│   │   └── migrations/
+│   │
+│   ├── exports/                    # 📤 PDF Export App
+│   │   ├── __init__.py
+│   │   ├── models.py              # ExportHistory
+│   │   ├── views.py               # Export views
+│   │   ├── urls.py
+│   │   ├── services/              # 🔥 SERVICE LAYER
+│   │   │   ├── __init__.py
+│   │   │   ├── pdf_generator.py         # ReportLab/WeasyPrint logic
+│   │   │   └── export_service.py        # Business logic export
+│   │   ├── templates/
+│   │   │   └── exports/
+│   │   │       └── quiz_result.html     # HTML template cho PDF
+│   │   ├── tasks.py
+│   │   ├── utils.py
+│   │   ├── tests/
+│   │   └── migrations/
+│   │
+│   └── core/                       # 🛠️ Shared Core App
+│       ├── __init__.py
+│       ├── models.py              # Abstract base models (TimeStampedModel)
+│       ├── views.py               # Dashboard, Home
+│       ├── urls.py
+│       ├── middleware.py          # Custom middleware
+│       ├── decorators.py          # Custom decorators
+│       ├── exceptions.py          # Custom exceptions
+│       ├── utils.py               # Global utilities
+│       ├── validators.py          # Custom validators
+│       └── tests/
+│
+├── media/                          # 📁 Uploaded files storage
+│   ├── documents/
+│   │   ├── raw/                   # File gốc (PDF, DOCX)
+│   │   └── processed/             # File đã xử lý
+│   └── exports/                   # File PDF đã xuất
+│
+├── static/                         # 🎨 Static files
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── vendor/                    # Third-party libraries
+│
+├── staticfiles/                    # Collected static files (production)
+│
+├── templates/                      # 📄 Global HTML templates
+│   ├── base.html
+│   ├── includes/
+│   │   ├── navbar.html
+│   │   └── footer.html
+│   └── errors/
+│       ├── 404.html
+│       └── 500.html
+│
+├── logs/                           # 📋 Application logs
+│   ├── django.log
+│   └── celery.log
+│
+└── scripts/                        # 🔧 Utility scripts
+    ├── populate_db.py             # Seed data
+    └── cleanup_media.py           # Clean old files
