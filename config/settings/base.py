@@ -12,11 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY
 # ===============================
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # ===============================
@@ -41,7 +41,7 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # 'rest_framework',  # nếu sau này dùng DRF
+    # 'rest_framework',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # global templates
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,15 +92,16 @@ TEMPLATES = [
 
 
 # ===============================
-# DATABASE (SQLite default)
+# DATABASE - XÓA PHẦN NÀY
+# Mỗi environment sẽ định nghĩa database riêng
 # ===============================
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # ===============================
@@ -128,12 +129,17 @@ USE_TZ = True
 
 
 # ===============================
-# STATIC & MEDIA
+# STATIC FILES
 # ===============================
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+
+# ===============================
+# MEDIA FILES
+# ===============================
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -143,7 +149,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # CUSTOM USER MODEL
 # ===============================
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
+
+
+# ===============================
+# AUTHENTICATION URLS
+# ===============================
+
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'core:dashboard'
+LOGOUT_REDIRECT_URL = 'users:login'
 
 
 # ===============================

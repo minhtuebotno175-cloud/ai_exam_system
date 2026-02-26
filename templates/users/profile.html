@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Hồ sơ{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Thông tin tài khoản</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Ngày tham gia:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
+    </div>
+</div>
+{% endblock %}

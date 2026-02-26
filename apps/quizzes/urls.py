@@ -1,3 +1,8 @@
 from django.urls import path
+from . import views
 
-urlpatterns = []
+app_name = 'quizzes'
+
+urlpatterns = [
+    # Sẽ thêm sau
+]

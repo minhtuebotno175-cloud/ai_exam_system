@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Trang chủ{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1>🚀 AI Exam System</h1>
+    <p class="lead">Website lưu trữ tài liệu và tự động tạo đề thi bằng AI</p>
+    
+    <div class="mt-4">
+        <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg me-2">Đăng nhập</a>
+        <a href="{% url 'users:register' %}" class="btn btn-outline-primary btn-lg">Đăng ký</a>
+    </div>
+</div>
+{% endblock %}
