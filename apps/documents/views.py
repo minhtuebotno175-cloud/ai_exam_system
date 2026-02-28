@@ -1,32 +1,42 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from .models import Document
 from .forms import DocumentUploadForm
+from .services.document_service import DocumentService
+
 
 @login_required
 def upload_view(request):
-    """Upload document"""
+    """Upload document and extract text"""
     if request.method == 'POST':
         form = DocumentUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            document = form.save(commit=False)
-            document.user = request.user
-            
-            # Lấy thông tin file
-            uploaded_file = request.FILES['file_path']
-            document.filename = uploaded_file.name
-            document.file_size = uploaded_file.size
-            document.file_type = uploaded_file.content_type
-            
-            document.save()
-            
-            messages.success(request, f'Tải lên file "{document.filename}" thành công!')
-            return redirect('core:dashboard')
+            try:
+                # Use service to handle upload
+                service = DocumentService()
+                document = service.upload_and_process(
+                    file=request.FILES['file_path'],
+                    user=request.user,
+                    extract_immediately=True
+                )
+                
+                messages.success(
+                    request, 
+                    f'✅ Upload thành công! File "{document.filename}" đã được xử lý.'
+                )
+                return redirect('documents:detail', pk=document.pk)
+                
+            except ValidationError as e:
+                messages.error(request, f'❌ {str(e)}')
+            except Exception as e:
+                messages.error(request, f'❌ Lỗi: {str(e)}')
     else:
         form = DocumentUploadForm()
     
     return render(request, 'documents/upload.html', {'form': form})
+
 
 @login_required
 def document_list_view(request):
@@ -34,11 +44,23 @@ def document_list_view(request):
     documents = Document.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'documents/list.html', {'documents': documents})
 
+
 @login_required
 def document_detail_view(request, pk):
-    """Document detail"""
+    """Document detail with extracted text"""
     document = get_object_or_404(Document, pk=pk, user=request.user)
-    return render(request, 'documents/detail.html', {'document': document})
+    
+    # Tính số từ và số dòng
+    word_count = len(document.extracted_text.split()) if document.extracted_text else 0
+    line_count = document.extracted_text.count('\n') + 1 if document.extracted_text else 0
+    
+    context = {
+        'document': document,
+        'word_count': word_count,
+        'line_count': line_count,
+    }
+    return render(request, 'documents/detail.html', context)
+
 
 @login_required
 def document_delete_view(request, pk):
@@ -46,11 +68,27 @@ def document_delete_view(request, pk):
     document = get_object_or_404(Document, pk=pk, user=request.user)
     
     if request.method == 'POST':
-        filename = document.filename
-        document.file_path.delete()  # Xóa file trong media/
-        document.delete()  # Xóa record trong database
-        
-        messages.success(request, f'Đã xóa file "{filename}"!')
-        return redirect('core:dashboard')
+        try:
+            service = DocumentService()
+            service.delete_document(document)
+            messages.success(request, f'✅ Đã xóa file "{document.filename}"!')
+            return redirect('core:dashboard')
+        except Exception as e:
+            messages.error(request, f'❌ Lỗi: {str(e)}')
     
     return render(request, 'documents/delete_confirm.html', {'document': document})
+
+
+@login_required
+def extract_text_view(request, pk):
+    """Re-extract text from document"""
+    document = get_object_or_404(Document, pk=pk, user=request.user)
+    
+    try:
+        service = DocumentService()
+        service.extract_text(document)
+        messages.success(request, '✅ Đã trích xuất lại văn bản thành công!')
+    except Exception as e:
+        messages.error(request, f'❌ Lỗi: {str(e)}')
+    
+    return redirect('documents:detail', pk=pk)

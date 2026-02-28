@@ -1,69 +1,147 @@
 {% extends 'base.html' %}
 
-{% block title %}Chi Tiết Tài Liệu{% endblock %}
+{% block title %}{{ document.filename }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3>📄 Chi Tiết Tài Liệu</h3>
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">{{ document.filename }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Document Info Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">📄 Chi Tiết Tài Liệu</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="150">Tên file:</th>
+                            <td><strong>{{ document.filename }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Loại file:</th>
+                            <td>
+                                {% if 'pdf' in document.file_type %}
+                                    <span class="badge bg-danger">PDF</span>
+                                {% elif 'word' in document.file_type or 'document' in document.file_type %}
+                                    <span class="badge bg-primary">Word</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ document.file_type }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Kích thước:</th>
+                            <td>{{ document.file_size|filesizeformat }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="150">Trạng thái:</th>
+                            <td>
+                                {% if document.status == 'completed' %}
+                                    <span class="badge bg-success">✅ Hoàn thành</span>
+                                {% elif document.status == 'processing' %}
+                                    <span class="badge bg-warning">⏳ Đang xử lý</span>
+                                {% elif document.status == 'failed' %}
+                                    <span class="badge bg-danger">❌ Lỗi</span>
+                                {% else %}
+                                    <span class="badge bg-info">📤 Đã tải lên</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Số từ:</th>
+                            <td><strong>{{ word_count }}</strong> từ</td>
+                        </tr>
+                        <tr>
+                            <th>Số dòng:</th>
+                            <td><strong>{{ line_count }}</strong> dòng</td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tải lên:</th>
+                            <td>{{ document.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ document.file_path.url }}" 
+                   class="btn btn-success" 
+                   download>
+                    <i class="bi bi-download"></i> Tải về
+                </a>
+                
+                <a href="{% url 'documents:extract' document.pk %}" 
+                   class="btn btn-warning">
+                    <i class="bi bi-arrow-repeat"></i> Trích xuất lại
+                </a>
+                
+                <a href="{% url 'core:dashboard' %}" 
+                   class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                
+                <a href="{% url 'documents:delete' document.pk %}" 
+                   class="btn btn-danger ms-auto">
+                    <i class="bi bi-trash"></i> Xóa
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <table class="table">
-            <tr>
-                <th width="200">Tên file:</th>
-                <td>{{ document.filename }}</td>
-            </tr>
-            <tr>
-                <th>Loại file:</th>
-                <td>{{ document.file_type }}</td>
-            </tr>
-            <tr>
-                <th>Kích thước:</th>
-                <td>{{ document.file_size|filesizeformat }}</td>
-            </tr>
-            <tr>
-                <th>Trạng thái:</th>
-                <td>
-                    <span class="badge bg-{{ document.status|default:'secondary' }}">
-                        {{ document.get_status_display }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <th>Ngày tải lên:</th>
-                <td>{{ document.created_at|date:"d/m/Y H:i:s" }}</td>
-            </tr>
-            <tr>
-                <th>Cập nhật lần cuối:</th>
-                <td>{{ document.updated_at|date:"d/m/Y H:i:s" }}</td>
-            </tr>
-        </table>
-        
-        {% if document.extracted_text %}
-            <h5 class="mt-4">Nội dung đã trích xuất:</h5>
-            <div class="border p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
-                <pre>{{ document.extracted_text }}</pre>
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                Chưa trích xuất nội dung từ file này.
-            </div>
-        {% endif %}
-        
-        <div class="mt-3">
-            <a href="{{ document.file_path.url }}" 
-               class="btn btn-primary" 
-               download>
-                📥 Tải về
-            </a>
-            <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
-                Quay lại
-            </a>
-            <a href="{% url 'documents:delete' document.pk %}" 
-               class="btn btn-danger">
-                🗑️ Xóa
-            </a>
+    
+    <!-- Extracted Text Card -->
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">📝 Nội Dung Đã Trích Xuất</h4>
+        </div>
+        <div class="card-body">
+            {% if document.extracted_text %}
+                <div class="border rounded p-3 bg-light" style="max-height: 500px; overflow-y: auto;">
+                    <pre class="mb-0" style="white-space: pre-wrap; font-family: 'Courier New', monospace;">{{ document.extracted_text }}</pre>
+                </div>
+                
+                <!-- Copy Button -->
+                <button class="btn btn-sm btn-outline-primary mt-3" onclick="copyText()">
+                    <i class="bi bi-clipboard"></i> Copy văn bản
+                </button>
+            {% else %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ Chưa có nội dung:</strong>
+                    {% if document.status == 'failed' %}
+                        Không thể trích xuất văn bản từ file này. Vui lòng thử lại hoặc kiểm tra file.
+                    {% elif document.status == 'processing' %}
+                        Đang xử lý... Vui lòng chờ trong giây lát.
+                    {% else %}
+                        File chưa được xử lý. 
+                        <a href="{% url 'documents:extract' document.pk %}" class="alert-link">
+                            Click để trích xuất ngay
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+function copyText() {
+    const text = document.querySelector('pre').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Đã copy văn bản vào clipboard!');
+    });
+}
+</script>
 {% endblock %}

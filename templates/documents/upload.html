@@ -3,34 +3,49 @@
 {% block title %}Upload Tài Liệu{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3>📤 Upload Tài Liệu</h3>
-            </div>
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        {{ form.file_path.label_tag }}
-                        {{ form.file_path }}
-                        {% if form.file_path.errors %}
-                            <div class="text-danger">
-                                {{ form.file_path.errors }}
-                            </div>
-                        {% endif %}
-                        <small class="form-text text-muted">
-                            Chấp nhận file: PDF, DOC, DOCX (Tối đa 10MB)
-                        </small>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">📤 Upload Tài Liệu</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>📌 Lưu ý:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Chấp nhận file: <strong>PDF, DOC, DOCX</strong></li>
+                            <li>Kích thước tối đa: <strong>10MB</strong></li>
+                            <li>Hệ thống sẽ tự động trích xuất văn bản từ file</li>
+                        </ul>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Upload
-                    </button>
-                    <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">Hủy</a>
-                </form>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="id_file_path" class="form-label fw-bold">
+                                📄 Chọn file tài liệu
+                            </label>
+                            {{ form.file_path }}
+                            
+                            {% if form.file_path.errors %}
+                                <div class="text-danger mt-2">
+                                    {{ form.file_path.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-upload"></i> Upload và Xử Lý
+                            </button>
+                            <a href="{% url 'core:dashboard' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

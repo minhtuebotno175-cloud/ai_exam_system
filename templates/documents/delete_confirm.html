@@ -3,22 +3,37 @@
 {% block title %}Xác Nhận Xóa{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-danger text-white">
-                <h3>⚠️ Xác Nhận Xóa</h3>
-            </div>
-            <div class="card-body">
-                <p>Bạn có chắc chắn muốn xóa file:</p>
-                <p class="fw-bold">"{{ document.filename }}"?</p>
-                <p class="text-muted">Hành động này không thể hoàn tác!</p>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Xóa</button>
-                    <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">Hủy</a>
-                </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">⚠️ Xác Nhận Xóa</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Bạn có chắc chắn muốn xóa tài liệu này?</p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>📄 File:</strong> {{ document.filename }}<br>
+                        <strong>📊 Kích thước:</strong> {{ document.file_size|filesizeformat }}<br>
+                        <strong>📅 Ngày tải lên:</strong> {{ document.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                    
+                    <p class="text-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+                    </p>
+                    
+                    <form method="post" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash"></i> Xóa vĩnh viễn
+                        </button>
+                        <a href="{% url 'documents:detail' document.pk %}" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
